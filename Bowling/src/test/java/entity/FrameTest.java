@@ -18,7 +18,6 @@ public class FrameTest {
     private Frame frame;
     void setUpStrike(){
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(10);
-        frame = new Frame(fallenKeel);
     }
     void setUpSpare(){
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(9);
@@ -28,6 +27,7 @@ public class FrameTest {
         frame.setSeriesIsStandard(true);
     }
     void setUpSerieFinal(){
+        frame = new Frame(fallenKeel);
         frame.setSeriesIsStandard(false);
     }
 
@@ -35,7 +35,6 @@ public class FrameTest {
     void testUpdateScoreWhenFirstLaunchInStandardSerie(){
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(3);
         frame = new Frame(fallenKeel);
-        setUpSerieStandard();
         frame.updateScore();
         Assertions.assertEquals(3, frame.getRoll().getScore());
     }
@@ -44,7 +43,6 @@ public class FrameTest {
     void testUpdateScoreWhenSecondLaunchInStandardSerie(){
         frame = new Frame(fallenKeel);
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
-        setUpSerieStandard();
         frame.updateScore();
         frame.setRelance(true);
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
@@ -54,36 +52,71 @@ public class FrameTest {
 
     @Test
     void testShouldNotPossibleToRelaunchAfterStrike(){
+        frame = new Frame(fallenKeel);
         setUpStrike();
-        setUpSerieStandard();
         Assertions.assertThrowsExactly(NotReLaunchException.class, () -> {
             frame.updateScore();
         });
     }
 
     @Test
-    void testShouldNotPossibleToRelaunchAfterSecondLaunch(){
+    void testShouldNotPossibleToRelaunchAfterSecondLaunch3() {
         frame = new Frame(fallenKeel);
+
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
-        setUpSerieStandard();
-        frame.setRelance(true);
+        frame.updateScore();
+
         Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
-        frame.setRelance(false);
-        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
+        frame.updateScore();
+
         Assertions.assertThrowsExactly(NotReLaunchException.class, () -> {
             frame.updateScore();
         });
     }
 
     @Test
-    void testShouldNotPossibleToRelaunchAfterSecondLaunch2(){
-        frame = new Frame(fallenKeel);
-        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
-        setUpSerieStandard();
-        frame.setRelance(true);
-        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
-        Assertions.assertFalse(frame.isRelance());
+    void testStrikeWhenFinalSeriesWeCanLaunchAgain(){
+        setUpSerieFinal();
+        setUpStrike();
+        frame.updateScore();
+        Assertions.assertTrue(frame.isRelance());
+
     }
+
+    @Test
+    void WhenFirstLaunchIsStrikeScoreOfSecondLaunchShouldBeCounted(){
+        setUpSerieFinal();
+        setUpStrike();
+        frame.updateScore();
+        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
+        frame.updateScore();
+        Assertions.assertEquals(14,frame.getRoll().getScore());
+
+    }
+
+    @Test
+    void WhenFirstLaunchIsStrikeScoreOfThirdLaunchShouldBeCounted(){
+        setUpSerieFinal();
+        setUpStrike();
+        frame.updateScore();
+        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
+        frame.updateScore();
+        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
+        frame.updateScore();
+        Assertions.assertEquals(18,frame.getRoll().getScore());
+
+    }
+
+    @Test
+    void WhenSpareWeShouldLaunchASecondTime(){
+        setUpSerieFinal();
+        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(4);
+        frame.updateScore();
+        Mockito.when(fallenKeel.fallenKeelRandomNumber()).thenReturn(6);
+        frame.updateScore();
+        Assertions.assertTrue(frame.isRelance());
+    }
+
 
 
 }

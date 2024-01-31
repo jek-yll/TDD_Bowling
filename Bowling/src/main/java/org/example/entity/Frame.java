@@ -56,23 +56,46 @@ public class Frame {
 
     public void updateScore() {
 
-        if ( lauchNumber <= 2  ){
-        roll.setScore(fallenKeel.fallenKeelRandomNumber());
-        lauchNumber ++;
-            if (roll.getScore() == 10 ){
+        if (seriesIsStandard) {
+            if ( lauchNumber == 1  ){
+                roll.setScore(fallenKeel.fallenKeelRandomNumber());
+
+                if (roll.getScore() == 10 ){
+                    throw new NotReLaunchException();
+                } else {
+                    this.relance = true;
+                    lauchNumber++;
+                }
+            } else if (lauchNumber == 2){
+                roll.setScore(roll.getScore() + fallenKeel.fallenKeelRandomNumber());
+                lauchNumber ++;
+                // this.relance = false;
+            } else if (lauchNumber == 3 ) {
+                System.out.println(fallenKeel.fallenKeelRandomNumber());
                 throw new NotReLaunchException();
-            } else {
-        this.relance = true;
-        lauchNumber++;
             }
+
         } else {
-            roll.setScore(roll.getScore() + fallenKeel.fallenKeelRandomNumber());
+            if ( lauchNumber == 1  ){
+                roll.setScore(fallenKeel.fallenKeelRandomNumber());
+                this.relance = true;
+                lauchNumber++;
 
-            // this.relance = false;
+            } else if (lauchNumber == 2){
+
+//                if (roll.getScore() == 10 ){
+//                    roll.setScore(roll.getScore() + fallenKeel.fallenKeelRandomNumber());
+//                    lauchNumber ++;
+//                }
+
+                roll.setScore(roll.getScore() + fallenKeel.fallenKeelRandomNumber());
+                lauchNumber ++;
+                // this.relance = false;
+            } else if (lauchNumber == 3 ) {
+                roll.setScore(roll.getScore() + fallenKeel.fallenKeelRandomNumber());
+
+            }
         }
 
-        if (lauchNumber >2){
-            throw  new NotReLaunchException();
-        }
     }
 }
